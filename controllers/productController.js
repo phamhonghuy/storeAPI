@@ -1,9 +1,29 @@
 // controllers/productController.js
 const Product = require('../models/product');
+const Store = require('../models/store');
 
 exports.listProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate('store', 'store_name');
+    const { page = 1, perPage = 10, search = '' } = req.query;
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(perPage),
+      collation: {
+        locale: 'en', // Use 'en' for case-insensitive search
+      },
+    };
+    let stores = await Store.find({user:"64beb9b5383efc2f0e946769"})
+    let storeIds = stores.map(store => store._id) // Get the IDs of the stores
+    const query = {
+      'store': storeIds, // Filter products by the user ID of the currently logged-in user
+    };
+
+    if (search) {
+      query.product_name = { $regex: search, $options: 'i' }; // Perform a case-insensitive search on product_name
+    }
+
+    const products = await Product.paginate(query, options);
+
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: 'An error occurred' });
@@ -51,7 +71,7 @@ exports.updateProduct = async (req, res) => {
     }
 
     // Check if the logged-in user is the owner of the product's store
-    if (product.store.user.toString() !== req.user._id.toString()) {
+    if (product.store.user.toString() !== req.body.user_id.toString()) {
       return res.status(403).json({ message: 'You are not authorized to update this product' });
     }
 
@@ -73,20 +93,20 @@ exports.deleteProduct = async (req, res) => {
   try {
     const productId = req.params.id;
 
-    const product = await Product.findById(productId);
+    const product1 = await Product.findById(productId);
 
-    if (!product) {
+    if (!product1) {
       return res.status(404).json({ message: 'Product not found' });
     }
-
+    let store = await Store.findById(product1.store._id)
     // Check if the logged-in user is the owner of the product's store
-    if (product.store.user.toString() !== req.user._id.toString()) {
+    if (store.user.toString() !== req.body.user_id.toString()) {
       return res.status(403).json({ message: 'You are not authorized to delete this product' });
     }
 
     // Delete the product
-    await product.remove();
-
+    await product1.deleteOne({_id:productId});
+console.log(1);
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'An error occurred' });

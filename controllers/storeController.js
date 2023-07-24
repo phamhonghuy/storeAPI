@@ -3,10 +3,28 @@ const Store = require('../models/store');
 
 exports.listStores = async (req, res) => {
   try {
-    const stores = await Store.find().populate('user', 'username email');
+    const { page = 1, perPage = 10, search = '' } = req.query;
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(perPage),
+      collation: {
+        locale: 'en', // Use 'en' for case-insensitive search
+      },
+    };
+    
+    const query = {
+      user: req.body.user_id, // Filter stores by the user ID of the currently logged-in user
+    };
+
+    if (search) {
+      query.store_name = { $regex: search, $options: 'i' }; // Perform a case-insensitive search on store_name
+    }
+
+    const stores = await Store.paginate(query, options);
+
     res.json(stores);
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred' });
+    res.status(500).json({ message: 'An error occurred'+error });
   }
 };
 
@@ -52,7 +70,7 @@ exports.updateStore = async (req, res) => {
     }
 
     // Check if the logged-in user is the owner of the store
-    if (store.user.toString() !== req.user._id.toString()) {
+    if (store.user.toString() !== req.body.user_id.toString()) {
       return res.status(403).json({ message: 'You are not authorized to update this store' });
     }
 
@@ -79,7 +97,7 @@ exports.deleteStore = async (req, res) => {
     }
 
     // Check if the logged-in user is the owner of the store
-    if (store.user.toString() !== req.user._id.toString()) {
+    if (store.user.toString() !== req.body.user_id.toString()) {
       return res.status(403).json({ message: 'You are not authorized to delete this store' });
     }
 

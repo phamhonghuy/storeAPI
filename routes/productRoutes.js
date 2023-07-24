@@ -6,9 +6,9 @@ const router = express.Router();
 const authenticateToken = require('../middleware/authenticateToken');
 
 router.get('/products', productController.listProducts);
-router.post('/products', authenticateToken, productController.createProduct);
+router.post('/products', productController.createProduct);
 router.get('/products/:id', productController.getProduct);
-router.put('/products/:id', authenticateToken, productController.updateProduct);
-router.delete('/products/:id', authenticateToken, productController.deleteProduct);
+router.put('/products/:id', productController.updateProduct);
+router.delete('/products/:id', productController.deleteProduct);
 
 module.exports = router;

@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const secretKey = process.env.SECRET_KEY;
+const secretKey = '`l4F>2w=Hnr`Dri6k<4amC@W0@2=`&HDsUrs#aq~H4L`Z)S3R(}mg#e+0RDiq>Jx';
 
 exports.register = async (req, res) => {
   try {
@@ -12,7 +12,7 @@ exports.register = async (req, res) => {
 
     const userData = { username, email, password };
     const newUser = await User.createUser(userData);
-    const token = jwt.sign({ username, email }, secretKey);
+    const token = jwt.sign({ username:username, email: email }, secretKey);
     res.status(201).json({ token });
   } catch (error) {
     res.status(500).json({ message: 'An error occurred' });

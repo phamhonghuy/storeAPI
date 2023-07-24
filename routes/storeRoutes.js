@@ -6,9 +6,9 @@ const router = express.Router();
 const authenticateToken = require('../middleware/authenticateToken');
 
 router.get('/stores', storeController.listStores);
-router.post('/stores', authenticateToken, storeController.createStore);
+router.post('/stores', storeController.createStore);
 router.get('/stores/:id', storeController.getStore);
-router.put('/stores/:id', authenticateToken, storeController.updateStore);
-router.delete('/stores/:id', authenticateToken, storeController.deleteStore);
+router.put('/stores/:id', storeController.updateStore);
+router.delete('/stores/:id', storeController.deleteStore);
 
 module.exports = router;
