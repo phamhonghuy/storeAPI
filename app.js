@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 require('dotenv').config(); // Load environment variables from .env file
 const authenticateToken = require('./middleware/authenticateToken');
 const app = express();
-const port = 3030; // You can change the port number if needed
+const port = 3000; // You can change the port number if needed
 
 // Database connection
 const dbConnectionString = process.env.DB_CONNECTION_STRING;
