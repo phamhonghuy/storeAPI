@@ -1,5 +1,6 @@
 // controllers/storeController.js
 const Store = require('../models/store');
+const Product = require('../models/product');
 
 exports.listStores = async (req, res) => {
   try {
@@ -105,7 +106,7 @@ exports.deleteStore = async (req, res) => {
     await Product.deleteMany({ store: storeId });
     
     // Delete the store
-    await store.remove();
+    await Store.deleteOne({ _id: storeId });
 
     res.json({ message: 'Store deleted successfully' });
   } catch (error) {

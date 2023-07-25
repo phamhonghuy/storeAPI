@@ -12,7 +12,7 @@ exports.listProducts = async (req, res) => {
         locale: 'en', // Use 'en' for case-insensitive search
       },
     };
-    let stores = await Store.find({user:"64beb9b5383efc2f0e946769"})
+    let stores = await Store.find({user:req.body.user_id})
     let storeIds = stores.map(store => store._id) // Get the IDs of the stores
     const query = {
       'store': storeIds, // Filter products by the user ID of the currently logged-in user
@@ -62,30 +62,30 @@ exports.getProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    const { store_id, product_name, description, price, stock_quantity } = req.body;
+    const { store_id, user_id, product_name, description, price, stock_quantity } = req.body;
 
     const product = await Product.findById(productId);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-
+    let oldStore = await Store.findById(product.store._id);
     // Check if the logged-in user is the owner of the product's store
-    if (product.store.user.toString() !== req.body.user_id.toString()) {
+    if (oldStore.user.toString() !== user_id.toString()) {
       return res.status(403).json({ message: 'You are not authorized to update this product' });
     }
 
     // Update the product
-    product.store = store_id;
-    product.product_name = product_name;
-    product.description = description;
-    product.price = price;
-    product.stock_quantity = stock_quantity;
+    store_id ? product.store = store_id:'' ;
+    product_name ? product.product_name = product_name : '';
+    description ? product.description = description : '';
+    price ? product.price = price : '';
+    stock_quantity ? product.stock_quantity = stock_quantity : '';
     await product.save();
 
     res.json(product);
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred' });
+    res.status(500).json({ message: 'An error occurred'});
   }
 };
 
